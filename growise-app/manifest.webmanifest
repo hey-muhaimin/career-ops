@@ -1,0 +1,13 @@
+{
+  "name": "Growise Garden Planner",
+  "short_name": "Growise",
+  "description": "A thoughtful home garden planner for the plants you grow and the care they need.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f6f7f1",
+  "theme_color": "#f6f7f1",
+  "icons": [
+    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}

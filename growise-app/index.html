@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#f6f7f1">
+    <meta name="description" content="A thoughtful home garden planner for the plants you grow and the care they need.">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' https://images.unsplash.com data:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; script-src 'self'; connect-src 'self'; manifest-src 'self'; worker-src 'self'">
+    <title>Growise — a little more green</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="manifest" href="/manifest.webmanifest">
+    <link rel="stylesheet" href="/styles.css">
+    <script type="module" src="/app.mjs"></script>
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="Main navigation">
+        <a class="brand" href="#overview" aria-label="Growise home">
+          <span class="brand-mark" aria-hidden="true">g</span>
+          <span class="brand-word">growise<span class="brand-period">.</span></span>
+        </a>
+
+        <div class="garden-label"><span class="garden-dot"></span> MY GARDEN</div>
+        <nav class="primary-nav" aria-label="Garden views">
+          <button class="nav-link is-active" type="button" data-view="overview" aria-current="page">
+            <span class="nav-icon" aria-hidden="true">⌂</span><span>Overview</span>
+          </button>
+          <button class="nav-link" type="button" data-view="plants">
+            <span class="nav-icon" aria-hidden="true">♧</span><span>My plants</span><span class="nav-count" id="plant-nav-count">0</span>
+          </button>
+          <button class="nav-link" type="button" data-view="journal">
+            <span class="nav-icon" aria-hidden="true">▤</span><span>Garden journal</span>
+          </button>
+        </nav>
+
+        <div class="sidebar-bottom">
+          <div class="local-note"><span class="local-note-icon" aria-hidden="true">⌁</span><div><strong>Yours, always.</strong><span>Your garden lives on this device.</span></div></div>
+          <button class="nav-link quiet-link" type="button" id="export-button"><span class="nav-icon" aria-hidden="true">↓</span><span>Export a backup</span></button>
+          <button class="nav-link quiet-link" type="button" id="import-button"><span class="nav-icon" aria-hidden="true">↑</span><span>Restore a backup</span></button>
+          <input id="import-file" type="file" accept="application/json,.json" hidden>
+          <div class="sidebar-version">GROWISE <span>·</span> YOUR GARDEN, YOUR WAY</div>
+        </div>
+      </aside>
+
+      <main class="main-content">
+        <header class="topbar">
+          <button class="mobile-brand" type="button" data-view="overview" aria-label="Growise overview"><span class="brand-mark" aria-hidden="true">g</span> growise<span class="brand-period">.</span></button>
+          <div class="topbar-spacer"></div>
+          <span class="today-label" id="today-label"></span>
+          <button class="button button-primary top-add" type="button" data-open-dialog="plant-dialog"><span aria-hidden="true">＋</span> Add a plant</button>
+        </header>
+
+        <div id="view-root" class="view-root" tabindex="-1"></div>
+      </main>
+    </div>
+
+    <dialog class="form-dialog" id="plant-dialog" aria-labelledby="plant-dialog-title">
+      <form method="dialog" class="dialog-dismiss"><button class="icon-button" value="cancel" aria-label="Close dialog">×</button></form>
+      <div class="dialog-kicker">A NEW LITTLE LIFE</div>
+      <h2 id="plant-dialog-title">Add a plant</h2>
+      <p class="dialog-copy">A few details help us keep its care on track.</p>
+      <form id="plant-form" class="field-form">
+        <label class="field-label" for="plant-name">Plant name <span aria-hidden="true">*</span><input id="plant-name" name="name" maxlength="60" required placeholder="e.g. Window basil"></label>
+        <div class="field-row">
+          <label class="field-label" for="plant-species">Type or variety<input id="plant-species" name="species" maxlength="60" placeholder="Sweet basil"></label>
+          <label class="field-label" for="plant-location">Where it lives<input id="plant-location" name="location" maxlength="60" placeholder="Kitchen windowsill"></label>
+        </div>
+        <div class="field-row">
+          <label class="field-label" for="plant-sunlight">Light<select id="plant-sunlight" name="sunlight"><option value="">Not sure yet</option><option>Full sun</option><option>Part sun</option><option>Bright indirect</option><option>Shade</option></select></label>
+          <label class="field-label" for="plant-water">Water every<input id="plant-water" name="waterEveryDays" type="number" min="1" max="60" value="7" required><small>days</small></label>
+        </div>
+        <label class="field-label" for="plant-notes">A note, if you like<textarea id="plant-notes" name="notes" rows="3" maxlength="500" placeholder="Anything you want to remember…"></textarea></label>
+        <div class="dialog-actions"><button class="button button-quiet" type="button" data-close-dialog>Not now</button><button class="button button-primary" type="submit">Add to my garden <span aria-hidden="true">→</span></button></div>
+      </form>
+    </dialog>
+
+    <dialog class="form-dialog journal-dialog" id="journal-dialog" aria-labelledby="journal-dialog-title">
+      <form method="dialog" class="dialog-dismiss"><button class="icon-button" value="cancel" aria-label="Close dialog">×</button></form>
+      <div class="dialog-kicker">A MOMENT IN THE GARDEN</div>
+      <h2 id="journal-dialog-title">Write a note</h2>
+      <p class="dialog-copy">Small observations make a lovely record.</p>
+      <form id="journal-form" class="field-form">
+        <label class="field-label" for="journal-plant">For a plant<select id="journal-plant" name="plantId"><option value="">The whole garden</option></select></label>
+        <label class="field-label" for="journal-date">Date<input id="journal-date" name="date" type="date" required></label>
+        <label class="field-label" for="journal-text">Your note<textarea id="journal-text" name="text" rows="5" maxlength="1000" required placeholder="What did you notice today?"></textarea></label>
+        <div class="dialog-actions"><button class="button button-quiet" type="button" data-close-dialog>Not now</button><button class="button button-primary" type="submit">Save note <span aria-hidden="true">→</span></button></div>
+      </form>
+    </dialog>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  </body>
+</html>
