@@ -436,42 +436,107 @@ There is also an **experimental web UI** (alpha and opt-in: nothing runs unless 
 
 ## Project Structure
 
+The repository keeps the job-search workflow, its shared code, and your
+personal workspace in one place. The personal-data folders are gitignored;
+they can also live outside the checkout (see
+[External Data Directory](#external-data-directory-optional)).
+
 ```
 career-ops/
-├── AGENTS.md                    # Canonical agent instructions (all CLIs)
-├── CLAUDE.md                    # Claude Code wrapper (imports AGENTS.md)
-├── CODEX.md                     # Codex wrapper (imports AGENTS.md)
-├── OPENCODE.md                  # OpenCode wrapper (imports AGENTS.md)
-├── GEMINI.md                    # Legacy no-op guard to avoid Antigravity duplicate context
-├── cv.md                        # Your CV (create this)
-├── article-digest.md            # Your proof points (optional)
-├── config/
-│   └── profile.example.yml      # Template for your profile
-├── modes/                       # Skill modes
-│   ├── _shared.md               # Shared context (system file; local edit kept unless apply --force)
-│   ├── _profile.md              # Your archetypes and framing (customize this)
-│   ├── oferta.md                # Single evaluation
-│   ├── pdf.md                   # PDF generation
-│   ├── cover.md                 # Cover letter generation
-│   ├── email.md                 # Formal application email drafts
-│   ├── scan.md                  # Portal scanner
-│   ├── batch.md                 # Batch processing
-│   └── ...
-├── templates/
-│   ├── cv-template.html         # ATS-optimized CV template
-│   ├── portals.example.yml      # Scanner config template
-│   └── states.yml               # Canonical statuses
-├── batch/
-│   ├── batch-prompt.md          # Self-contained worker prompt
-│   └── batch-runner.sh          # Orchestrator script
-├── dashboard/                   # Go TUI pipeline viewer
-├── data/                        # Your tracking data (gitignored)
-├── reports/                     # Evaluation reports (gitignored)
-├── output/                      # Generated PDFs (gitignored)
-├── fonts/                       # Space Grotesk + DM Sans
-├── docs/                        # Setup, customization, budget guide, architecture
-└── examples/                    # Sample CV, report, proof points
+├── .github/                  # Workflows, templates, and repo automation
+├── .agents/ .claude/ ...     # Agent/CLI-specific entrypoints and settings
+├── *-directory/              # Packages for supported agent directories
+├── *.mjs                     # Job-search, document, tracker, and maintenance commands
+├── config/                   # Example profiles and local config templates
+├── modes/                    # Agent workflows; localized modes are nested here
+├── templates/                # CV, cover-letter, status, and config templates
+├── providers/                # Public job-board and ATS source adapters
+├── lib/                      # Shared JavaScript modules imported by scripts
+├── plugins/                  # Optional career-ops integrations and engine
+├── batch/                    # Batch prompts, runner, and batch-only utilities
+├── scripts/ utils/           # Operational scripts and small shared helpers
+├── dashboard/                # Go terminal dashboard for the application tracker
+├── web/                      # Opt-in web UI and its server-side scripts
+├── growise-app/              # Separate local-first garden planner companion app
+├── tests/ test-fixtures/     # Automated tests and their small input fixtures
+├── docs/ examples/ evals/    # Guides, examples, and evaluation fixtures
+├── fonts/ data-static/       # Local font assets and static lookup data
+├── hooks/                    # Agent lifecycle hook configuration
+├── plugins-registry/         # Manifests for available optional integrations
+├── seeds/                    # Seed data and discovery helpers
+├── scaffolder/               # npm installer for a ready-to-use career-ops checkout
+├── data/ documents/          # Personal tracker data and source documents
+├── interview-prep/ jds/      # Personal interview notes and archived job descriptions
+├── reports/ output/          # Personal evaluation reports and generated files
+└── writing-samples/          # Optional personal examples for writing style
 ```
+
+### What each folder is for
+
+| Folder | What it contains |
+| --- | --- |
+| `.agents/`, `.antigravitycli/`, `.claude/`, `.claude-plugin/`, `.codex-plugin/`, `.cursor-plugin/`, `.grok/`, `.kimi/`, `.omp/`, `.opencode/`, `.qwen/` | Entrypoints, settings, and plugin metadata that let supported coding agents discover career-ops. |
+| `.github/` | GitHub Actions, pull-request and issue templates, and repository automation. |
+| `.well-known/` | Public machine-readable repository and service metadata. |
+| `antigravity-directory/`, `claude-directory/`, `cursor-directory/`, `openai-directory/` | Installable or distributable skill packages for those agent ecosystems. |
+| `config/` | Example profile, CV facts, privacy, plugin, and local-path configuration. These are templates; user configuration belongs in the data root. |
+| `modes/` | Markdown workflow instructions for evaluating roles, scanning, tailoring documents, interviews, and pipeline tasks. Language/market-specific mode sets and nested interview modes live here too. |
+| `templates/` | Reusable CV and cover-letter layouts, scanner examples, canonical tracker states, and other data templates. |
+| `providers/` | One adapter per supported public job board or ATS, plus shared provider helpers. The scanner discovers non-underscore `.mjs` modules through [`_registry.mjs`](providers/_registry.mjs); underscore-prefixed files are helpers, not providers. See [Supported job boards](docs/SUPPORTED_JOB_BOARDS.md) and [Adding a provider](providers/ADDING_A_PROVIDER.md). |
+| `lib/` | Shared implementation modules—such as path, browser, CV, tracker, privacy, and parsing helpers—used by the command-line scripts. These are imported by other code rather than run as user commands. |
+| `plugins/` | The opt-in integration engine and bundled integrations (for example, Apify, Gmail, H-1B sponsor data, and Notion). Integrations are off unless enabled. This is separate from agent marketplace metadata in `.claude-plugin/` and the other hidden CLI folders. |
+| `plugins-registry/` | JSON manifests describing integrations that can be installed or discovered. |
+| `batch/` | Batch input/prompt documentation, `batch-runner.sh` orchestration, and batch-specific helpers such as `aggregate-tokens.mjs`, `company-scope.mjs`, and `jd-rescue.mjs`. |
+| `scripts/` | Smaller operational/developer helpers, including `check-syntax.mjs`, `export-ats-text.mjs`, and `followup-sweep.sh`. Scheduled-job scripts are under `web/scripts/`. |
+| `utils/` | Small shared utilities, including privacy filtering and token tracking. |
+| `dashboard/` | Standalone Go/Bubble Tea terminal UI for browsing and updating the application pipeline. |
+| `web/` | The separate, opt-in web interface, with its own server, UI, and scheduled-job scripts. |
+| `growise-app/` | A separate local-first garden-planner PWA; it is not part of the job-search workflow. |
+| `scaffolder/` | The npm package and code used by `npx @santifer/career-ops init` to create a ready-to-use checkout. |
+| `tests/`, `test-fixtures/` | Automatically discovered Node.js regression tests and small input fixtures used by those tests. |
+| `evals/` | Evaluation data and guidance for measuring agent behavior. |
+| `examples/` | Sample CVs, reports, and proof-point documents; use them as examples, not as personal profile data. |
+| `docs/` | Setup, architecture, privacy, supported-CLI, customization, and command-reference documentation. |
+| `fonts/` | Local font files and their license notices used by document templates. |
+| `data-static/` | Static reference data shipped with the code. |
+| `hooks/` | Configuration for optional agent lifecycle hooks. |
+| `seeds/` | Seed datasets and scripts used for discovery workflows. |
+| `data/`, `documents/`, `interview-prep/`, `jds/`, `reports/`, `output/`, `writing-samples/` | Personal workspace folders: tracker and other user data, source documents, prep notes, archived JDs, reports, generated artifacts, and optional writing samples. These are not application source code. |
+
+The script-heavy folders have a few conventions:
+
+- In `providers/`, each non-underscore `.mjs` file adapts a public board or ATS
+  for the scanner. `_registry.mjs` discovers/routes providers; underscore
+  modules such as `_http.mjs` hold shared helpers.
+- `lib/` contains imported building blocks such as `agent-cli.mjs`,
+  `browser-launch.mjs`, `cv-markdown.mjs`, `dir-lock.mjs`, and
+  `story-bank.mjs`; these are not standalone commands.
+- `plugins/` contains the integration engine (`_engine.mjs`, `_registry.mjs`,
+  `_net.mjs`, `_lock.mjs`) and each bundled integration's own entrypoint.
+- `batch/` includes `batch-runner.sh` plus the batch-only `.mjs` helpers listed
+  above. `web/scripts/` contains the web UI's scheduled-job runner and
+  install/uninstall helpers.
+- `utils/` contains small shared modules (`privacy-filter.mjs` and
+  `token-tracker.mjs`). `dashboard/` is a Go application (`main.go`), not a
+  Node.js script collection.
+
+### Main scripts
+
+The many user-facing `.mjs` commands live at the repository root. These are
+the main entry points; shared implementation details are factored into `lib/`,
+`providers/`, and `plugins/`.
+
+| Workflow | Main scripts |
+| --- | --- |
+| Setup and paths | `doctor.mjs` checks setup; `onboard-write.mjs` writes onboarding choices; `path-resolver.mjs` resolves the code and data roots. |
+| Discover and verify jobs | `scan.mjs` scans configured boards; `scan-ats-full.mjs` searches broader ATS datasets; `check-liveness.mjs` checks whether a posting is still active; `fetch-jd.mjs` retrieves job-description text from supported ATS APIs. |
+| Evaluate and create documents | `auto-pipeline` mode coordinates evaluation; `generate-pdf.mjs` renders a CV PDF; `generate-latex.mjs` validates and compiles a LaTeX CV; `generate-cover-letter.mjs` creates a cover letter. |
+| Track applications | `merge-tracker.mjs` merges tracker additions; `set-status.mjs` updates an existing application; `verify-pipeline.mjs` checks pipeline consistency; `tracker.mjs` queries the tracker index. |
+| Process batches | `batch/batch-runner.sh` runs batch workers and tracks progress; `batch/aggregate-tokens.mjs` summarizes usage across a batch. |
+| Maintain the installation | `update-system.mjs` checks/applies updates and supports rollback; `validate-portals.mjs` checks scanner configuration. |
+
+For the complete, maintained command list—including options and read-only
+utilities—see the [Scripts Reference](docs/SCRIPTS.md).
 
 ## External Data Directory (Optional)
 
