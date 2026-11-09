@@ -11,6 +11,8 @@ const types = new Map([
   ['.mjs', 'text/javascript; charset=utf-8'],
   ['.js', 'text/javascript; charset=utf-8'],
   ['.svg', 'image/svg+xml'],
+  ['.jpg', 'image/jpeg'],
+  ['.jpeg', 'image/jpeg'],
   ['.webmanifest', 'application/manifest+json; charset=utf-8'],
 ]);
 

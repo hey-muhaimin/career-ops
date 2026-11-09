@@ -7,6 +7,7 @@ const APP_ASSETS = [
   '/garden-store.mjs',
   '/manifest.webmanifest',
   '/favicon.svg',
+  '/garden-photo.jpg',
 ];
 
 self.addEventListener('install', (event) => {
